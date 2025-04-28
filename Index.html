@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadastro de Processos</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9fafb;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      text-align: center;
+      color: #1f2937;
+    }
+
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #2563eb;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      width: 100%;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Cadastro de Processos</h2>
+
+  <form id="formProcesso">
+    <label>Processo</label>
+    <input type="text" name="processo" required>
+
+    <label>Tipo</label>
+    <select name="tipo" required>
+      <option value="">Selecione</option>
+      <option value="Dependente">Dependente</option>
+      <option value="Independente">Independente</option>
+      <option value="N/A(Não se aplica)">N/A (Não se aplica)</option>
+    </select>
+
+    <label>Entradas</label>
+    <input type="text" name="entradas">
+
+    <label>Fornecedor</label>
+    <select name="fornecedor" id="fornecedor"></select>
+
+    <label>Saídas</label>
+    <input type="text" name="saidas">
+
+    <label>Cliente</label>
+    <select name="cliente" id="cliente"></select>
+
+    <label>Tempo (hh:mm:ss)</label>
+    <input type="text" name="tempo" placeholder="Ex: 01:30:00">
+
+    <label>Responsável</label>
+    <select name="responsavel" id="responsavel"></select>
+
+    <label>Observações</label>
+    <textarea name="observacoes" rows="3"></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
+</div>
+
+<script>
+  const scriptURL = 'https://script.google.com/macros/s/AKfycbx4FmhHVuQ4XG2aHjIZ-GXcC5KQ-my41WDEwaQD_rJRUW-krq0_cBvNr_j1129LFtALJA/exec';
+  const form = document.getElementById('formProcesso');
+
+  // Simulando listas dinâmicas (futuramente pode ser buscado da API)
+  const fornecedores = ['Fornecedor X', 'Fornecedor Y', 'Fornecedor Z'];
+  const clientes = ['Cliente A', 'Cliente B', 'Cliente C'];
+  const responsaveis = ['João Silva', 'Maria Oliveira', 'Carlos Costa'];
+
+  function populaSelect(id, lista) {
+    const select = document.getElementById(id);
+    select.innerHTML = '<option value="">Selecione</option>';
+    lista.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item;
+      option.textContent = item;
+      select.appendChild(option);
+    });
+  }
+
+  // Popula os selects dinâmicos
+  populaSelect('fornecedor', fornecedores);
+  populaSelect('cliente', clientes);
+  populaSelect('responsavel', responsaveis);
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const data = {};
+    formData.forEach((value, key) => data[key] = value);
+
+    fetch(scriptURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(response => {
+      alert("Dados enviados com sucesso!");
+      form.reset();
+    })
+    .catch(error => {
+      console.error('Erro!', error.message);
+      alert("Erro ao enviar os dados.");
+    });
+  });
+</script>
+
+</body>
+</html>
