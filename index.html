@@ -60,8 +60,26 @@
     button:hover {
       background-color: #1e40af;
     }
+
+    #successModal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+    }
+
+    #successModal div {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+    }
   </style>
 </head>
+
 <body>
 
 <div class="container">
@@ -104,31 +122,52 @@
   </form>
 </div>
 
+<!-- Modal de sucesso -->
+<div id="successModal">
+  <div>
+    <h2 style="color:green;">Sucesso!</h2>
+    <p>Seus dados foram enviados.</p>
+    <button onclick="closeModal()" style="margin-top:20px; background:#2563eb; color:white; padding:10px 20px; border:none; border-radius:5px;">OK</button>
+  </div>
+</div>
+
 <script>
   const scriptURL = 'https://script.google.com/macros/s/AKfycbx4FmhHVuQ4XG2aHjIZ-GXcC5KQ-my41WDEwaQD_rJRUW-krq0_cBvNr_j1129LFtALJA/exec';
   const form = document.getElementById('formProcesso');
 
-  // Simulando listas dinâmicas (futuramente pode ser buscado da API)
-  const fornecedores = ['Fornecedor X', 'Fornecedor Y', 'Fornecedor Z'];
-  const clientes = ['Cliente A', 'Cliente B', 'Cliente C'];
-  const responsaveis = ['João Silva', 'Maria Oliveira', 'Carlos Costa'];
+  function openModal() {
+    document.getElementById('successModal').style.display = 'flex';
+  }
 
+  function closeModal() {
+    document.getElementById('successModal').style.display = 'none';
+  }
+
+  // Função para popular selects
   function populaSelect(id, lista) {
     const select = document.getElementById(id);
     select.innerHTML = '<option value="">Selecione</option>';
     lista.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item;
-      option.textContent = item;
-      select.appendChild(option);
+      if (item) {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+      }
     });
   }
 
-  // Popula os selects dinâmicos
-  populaSelect('fornecedor', fornecedores);
-  populaSelect('cliente', clientes);
-  populaSelect('responsavel', responsaveis);
+  // Buscar listas dinâmicas da API
+  fetch(scriptURL)
+    .then(response => response.json())
+    .then(data => {
+      populaSelect('fornecedor', data.fornecedores);
+      populaSelect('cliente', data.clientes);
+      populaSelect('responsavel', data.responsaveis);
+    })
+    .catch(error => console.error('Erro ao carregar listas dinâmicas:', error));
 
+  // Envio do formulário
   form.addEventListener('submit', e => {
     e.preventDefault();
     const formData = new FormData(form);
@@ -137,14 +176,12 @@
 
     fetch(scriptURL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     })
     .then(response => response.json())
     .then(response => {
-      alert("Dados enviados com sucesso!");
+      openModal(); // Mostra o modal
       form.reset();
     })
     .catch(error => {
